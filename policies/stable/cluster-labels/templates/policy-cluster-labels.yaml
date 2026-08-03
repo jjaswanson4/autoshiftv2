@@ -117,7 +117,9 @@ spec:
                     {{ "{{-" }} $metadata := set $cluster.metadata "labels" $renderedLabels {{ "}}" }}
                     {{ "{{-" }} $objectDefinition := set $cluster "metadata" $metadata {{ "}}" }}
                     {{ "{{-" }} $_ := unset $objectDefinition "status" {{ "}}" }}
-                    {{ "{{-" }} $_ := unset $objectDefinition "spec" {{ "}}" }}
+                    {{ "{{-" }} if hasKey $objectDefinition "spec" {{ "}}" }}
+                      {{ "{{-" }} $_ := unset $objectDefinition.spec "managedClusterClientConfigs" {{ "}}" }}
+                    {{ "{{-" }} end {{ "}}" }}
                     {{ "{{-" }} $_ := set $managedClusterObj "complianceType" "mustonlyhave" {{ "}}" }}
                     {{ "{{-" }} $_ := set $managedClusterObj "objectDefinition" $objectDefinition {{ "}}" }}
                     {{ "{{-" }} $managedClusterConfigObjects = append $managedClusterConfigObjects $managedClusterObj {{ "}}" }}
