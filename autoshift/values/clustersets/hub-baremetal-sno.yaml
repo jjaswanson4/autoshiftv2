@@ -12,7 +12,7 @@ hubClusterSets:
   hub:
     labels:
       # OpenShift version for cluster deployment and image mirroring
-      openshift-version: '4.20.29'
+      openshift-version: '4.22.4'
       self-managed: 'true'
       ### Advance Cluster Manager
       acm-subscription-name: advanced-cluster-management

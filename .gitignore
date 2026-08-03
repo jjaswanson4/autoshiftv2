@@ -18,6 +18,7 @@ release-artifacts/
 .tmp/*
 local/
 memory
+ignore/
 
 # kustomize --enable-helm pulls remote charts into a local charts/ cache next to the
 # kustomization (e.g. a direct `kustomize build` of a policy using helmCharts with repo:).
