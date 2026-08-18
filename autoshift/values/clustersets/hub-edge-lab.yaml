@@ -1,0 +1,217 @@
+# Edge Lab Hub Configuration
+# 3-node compact bare metal cluster with ODF storage (externally managed)
+
+# Compact clusters don't have dedicated infra or worker nodes
+excludePolicies:
+  - infra-nodes
+  - worker-nodes
+
+hubClusterSets:
+  default:
+    labels:
+      # Hub cluster is self-managed
+      self-managed: 'true'
+      openshift-version: '4.22.3'
+      gitops: 'true'
+      gitops-subscription-name: openshift-gitops-operator
+      gitops-disable-default-argocd: 'true'
+      gitops-channel: gitops-1.21
+      gitops-source: redhat-operators
+      gitops-source-namespace: openshift-marketplace
+
+      ### Advanced Cluster Manager - Required for hub
+      acm: 'true'
+      acm-subscription-name: advanced-cluster-management
+      acm-channel: release-2.16
+      acm-source: redhat-operators
+      acm-source-namespace: openshift-marketplace
+      acm-availability-config: 'Basic'
+      cluster-install: 'true'
+      acm-enable-provisioning: 'true'
+      acm-provisioning-storage-class: 'ocs-storagecluster-ceph-rbd'
+      acm-provisioning-database-size: '10Gi'
+      acm-provisioning-filesystem-storage-size: '100Gi'
+      acm-provisioning-image-storage-size: '100Gi'
+
+      ### Tempo
+      # tempo: 'false'
+      tempo-subscription-name: tempo-product
+      tempo-channel: stable
+      tempo-source: redhat-operators
+      tempo-source-namespace: openshift-marketplace
+
+      ### Kiali
+      # kiali: 'false'
+      kiali-subscription-name: kiali-ossm
+      kiali-channel: stable
+      kiali-source: redhat-operators
+      kiali-source-namespace: openshift-marketplace
+
+      ### Service Mesh
+      # servicemesh3operator: 'false'
+      servicemesh3operator-subscription-name: servicemeshoperator3
+      servicemesh3operator-channel: stable
+      servicemesh3operator-source: redhat-operators
+      servicemesh3operator-source-namespace: openshift-marketplace
+
+      ### OpenTelemetry
+      # opentelemetry: 'false'
+      opentelemetry-subscription-name: opentelemetry-product
+      opentelemetry-channel: stable
+      opentelemetry-source: redhat-operators
+      opentelemetry-source-namespace: openshift-marketplace
+
+      ### Cert Manager
+      # cert-manager: 'false'
+      cert-manager-subscription-name: openshift-cert-manager-operator
+      cert-manager-channel: stable-v1
+      cert-manager-source: redhat-operators
+      cert-manager-source-namespace: openshift-marketplace
+
+      ### Local Storage Operator
+      local-storage: 'false'
+      local-storage-subscription-name: local-storage-operator
+      local-storage-channel: stable
+      local-storage-source: redhat-operators
+      local-storage-source-namespace: openshift-marketplace
+
+      ### LVM Operator
+      # lvm: 'false'
+      lvm-subscription-name: lvms-operator
+      lvm-channel: stable-4.22
+      lvm-source: redhat-operators
+      lvm-source-namespace: openshift-marketplace
+
+      ### OpenShift Data Foundation (externally managed - do not enable)
+      # odf: 'false'
+      odf-subscription-name: odf-operator
+      odf-multi-cloud-gateway: standalone
+      odf-channel: stable-4.22
+      odf-source: redhat-operators
+      odf-source-namespace: openshift-marketplace
+      odf-resource-profile: balanced
+
+      ### Advanced Cluster Security
+      acs: 'true'
+      acs-subscription-name: rhacs-operator
+      acs-channel: stable
+      acs-source: redhat-operators
+      acs-source-namespace: openshift-marketplace
+
+      ### Loki
+      # loki: 'false'
+      loki-subscription-name: loki-operator
+      loki-channel: stable-6.5
+      loki-source: redhat-operators
+      loki-source-namespace: openshift-marketplace
+      loki-size: 1x.extra-small
+      loki-lokistack-name: logging-lokistack
+
+      ### OpenShift Logging
+      # logging: 'false'
+      logging-subscription-name: cluster-logging
+      logging-channel: stable-6.5
+      logging-source: redhat-operators
+      logging-source-namespace: openshift-marketplace
+
+      ### Cluster Observability Operator
+      # coo: 'false'
+      coo-subscription-name: cluster-observability-operator
+      coo-channel: stable
+      coo-source: redhat-operators
+      coo-source-namespace: openshift-marketplace
+
+      ### Compliance Operator
+      # compliance: 'false'
+      compliance-subscription-name: compliance-operator
+      compliance-source: redhat-operators
+      compliance-source-namespace: openshift-marketplace
+      compliance-channel: stable
+
+      ### Node Maintenance
+      # node-maintenance: 'false'
+      node-maintenance-subscription-name: node-maintenance-operator
+      node-maintenance-channel: stable
+      node-maintenance-source: redhat-operators
+      node-maintenance-source-namespace: openshift-marketplace
+
+      ### External Secrets Operator
+      # external-secrets-operator: 'false'
+      external-secrets-operator-subscription-name: openshift-external-secrets-operator
+      external-secrets-operator-channel: stable-v1
+      external-secrets-operator-source: redhat-operators
+      external-secrets-operator-source-namespace: openshift-marketplace
+
+      ### Developer Spaces
+      dev-spaces: 'false'
+      dev-spaces-subscription-name: devspaces
+      dev-spaces-channel: stable
+      dev-spaces-source: redhat-operators
+      dev-spaces-source-namespace: openshift-marketplace
+
+      ### Developer Hub
+      dev-hub: 'false'
+      dev-hub-subscription-name: rhdh
+      dev-hub-channel: fast-1.9
+      dev-hub-source: redhat-operators
+      dev-hub-source-namespace: openshift-marketplace
+
+      ### OpenShift Pipelines
+      pipelines: 'false'
+      pipelines-subscription-name: openshift-pipelines-operator-rh
+      pipelines-channel: pipelines-1.21
+      pipelines-source: redhat-operators
+      pipelines-source-namespace: openshift-marketplace
+
+      ### Trusted Artifact Signer
+      tas: 'false'
+      tas-subscription-name: rhtas-operator
+      tas-channel: latest
+      tas-source: redhat-operators
+      tas-source-namespace: openshift-marketplace
+
+      ### Quay
+      quay: 'false'
+      quay-subscription-name: quay-operator
+      quay-channel: stable-3.17
+      quay-source: redhat-operators
+      quay-source-namespace: openshift-marketplace
+
+      ### GitLab
+      # gitlab: 'false'
+      gitlab-subscription-name: gitlab-operator-kubernetes
+      gitlab-channel: stable
+      gitlab-source: certified-operators
+      gitlab-source-namespace: openshift-marketplace
+
+      ### JFrog
+      # jfrog: 'false'
+      jfrog-subscription-name: artifactory-ha-operator
+      jfrog-channel: alpha
+      jfrog-source: certified-operators
+      jfrog-source-namespace: openshift-marketplace
+
+      ### GitLab Runner
+      # gitlab-runner: 'false'
+      gitlab-runner-subscription-name: gitlab-runner-operator
+      gitlab-runner-channel: stable
+      gitlab-runner-source: certified-operators
+      gitlab-runner-source-namespace: openshift-marketplace
+
+      ### Migration Toolkit for Virtualization
+      # mtv: 'false'
+      mtv-subscription-name: mtv-operator
+      mtv-channel: release-v2.8
+      mtv-source: redhat-operators
+      mtv-source-namespace: openshift-marketplace
+
+      ### OpenShift Virtualization
+      # virt: 'false'
+      virt-subscription-name: kubevirt-hyperconverged
+      virt-channel: stable
+      virt-source: redhat-operators
+      virt-source-namespace: openshift-marketplace
+
+      ### Disconnected Mirror Settings
+      # disconnected-mirror: 'false'
+      mirror-catalog-suffix: 'mirror'
