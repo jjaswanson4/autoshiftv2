@@ -7,6 +7,7 @@
 #
 # Operators whose templates read from rendered-config:
 #   - ODF StorageCluster  (config.odf.storageCluster)
+#   - Local Storage        (config.localStorage.{localVolumeDiscovery,localVolumeSets})
 #   - AAP                 (config.aap.instance)
 #   - cert-manager        (config.certManager.{ca,apiCert,ingressCert})
 #   - NMState             (config.networking)
@@ -110,6 +111,60 @@ managedClusterSets:
                 requests:
                   cpu: "1"
                   memory: 2Gi
+      # ── Local Storage overrides ─────────────────────────────────────
+      # localVolumeDiscovery: creates a LocalVolumeDiscovery CR (optional).
+      # localVolumeSets: dict keyed by name; each entry becomes a
+      #   LocalVolumeSet CR named "<key>-localvolumeset".
+      # When localVolumeSets is absent, the default hardcoded
+      # nvme-localvolumeset (disks >= 200G on OCS nodes) is created.
+      localStorage:
+        localVolumeDiscovery:
+          nodeSelector:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cluster.ocs.openshift.io/openshift-storage
+                    operator: Exists
+          tolerations:
+            - effect: NoSchedule
+              key: node.ocs.openshift.io/storage
+              operator: Exists
+        localVolumeSets:
+          nvme:
+            storageClassName: local-nvme
+            volumeMode: Block
+            deviceInclusionSpec:
+              deviceTypes:
+                - disk
+              deviceMechanicalProperties:
+                - NonRotational
+              minSize: 200G
+            nodeSelector:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: cluster.ocs.openshift.io/openshift-storage
+                      operator: Exists
+            tolerations:
+              - effect: NoSchedule
+                key: node.ocs.openshift.io/storage
+                operator: Exists
+          ssd:
+            storageClassName: local-ssd
+            volumeMode: Block
+            deviceInclusionSpec:
+              deviceTypes:
+                - disk
+              deviceMechanicalProperties:
+                - Rotational
+              minSize: 100G
+            nodeSelector:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: cluster.ocs.openshift.io/openshift-storage
+                      operator: Exists
+            tolerations:
+              - effect: NoSchedule
+                key: node.ocs.openshift.io/storage
+                operator: Exists
       # ── UWM example (commented) ──────────────────────────────────────
       # uwm:
       #   prometheus:
@@ -175,7 +230,7 @@ managedClusterSets:
       storage-nodes-numcores-per-socket: ''
       storage-nodes-zones: ''
       ### Local Storage Operator
-      local-storage: 'false'
+      local-storage: 'true'
       local-storage-subscription-name: local-storage-operator
       local-storage-channel: stable
       local-storage-source: redhat-operators
