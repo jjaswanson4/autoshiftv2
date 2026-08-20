@@ -10,6 +10,7 @@
 #   - Local Storage        (config.localStorage.{localVolumeDiscovery,localVolumeSets})
 #   - AAP                 (config.aap.instance)
 #   - cert-manager        (config.certManager.{ca,apiCert,ingressCert})
+#   - Workload Partitioning (config.workloadPartitioning.performanceProfile)
 #   - NMState             (config.networking)
 #   - UWM                 (config.uwm)
 managedClusterSets:
@@ -165,6 +166,32 @@ managedClusterSets:
               - effect: NoSchedule
                 key: node.ocs.openshift.io/storage
                 operator: Exists
+      # ── Workload Partitioning / PerformanceProfile ────────────────────
+      # When performanceProfile is present, the full name/annotations/spec
+      # are used as-is.  When absent, the existing field-by-field config
+      # (reservedCpus, isolatedCpus, nodeSelector, etc.) still works.
+      # workloadPartitioning:
+      #   performanceProfile:
+      #     name: controlplane-performanceprofile
+      #     annotations:
+      #       kubeletconfig.experimental: |
+      #         {"podsPerCore": 0, "maxPods": 500, "systemReserved": {"memory": "2Gi"}}
+      #     spec:
+      #       cpu:
+      #         isolated: "4-32,36-45,47-63"
+      #         reserved: "0-3,33-35,46"
+      #       machineConfigPoolSelector:
+      #         pools.operator.machineconfiguration.openshift.io/master: ""
+      #       nodeSelector:
+      #         node-role.kubernetes.io/master: ''
+      #       numa:
+      #         topologyPolicy: "restricted"
+      #       realTimeKernel:
+      #         enabled: false
+      #       workloadHints:
+      #         realTime: false
+      #         highPowerConsumption: false
+      #         perPodPowerManagement: false
       # ── UWM example (commented) ──────────────────────────────────────
       # uwm:
       #   prometheus:
