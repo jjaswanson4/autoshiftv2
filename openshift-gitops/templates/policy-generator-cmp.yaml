@@ -35,6 +35,7 @@ data:
             EC="${ARGOCD_ENV_EVAL_COMPLIANT:-${EVAL_COMPLIANT:-10m}}"
             EN="${ARGOCD_ENV_EVAL_NONCOMPLIANT:-${EVAL_NONCOMPLIANT:-30s}}"
             PS="${ARGOCD_ENV_POLICY_STANDARD:-${POLICY_STANDARD:-NIST SP 800-53}}"
+            PSH="${ARGOCD_ENV_POLICY_STANDARD_HUB:-${POLICY_STANDARD_HUB:-${PS}}}"
             # sed (envsubst is not in the argocd image), restricted to these exact tokens so
             # hub-template $vars ($base, $cm, ...) inside manifests/ are never touched.
             find . -type f -name '*.yaml' -exec sed -i \
@@ -42,6 +43,7 @@ data:
               -e "s|\${REMEDIATION}|${REM}|g" \
               -e "s|\${EVAL_COMPLIANT}|${EC}|g" \
               -e "s|\${EVAL_NONCOMPLIANT}|${EN}|g" \
+              -e "s|\${POLICY_STANDARD_HUB}|${PSH}|g" \
               -e "s|\${POLICY_STANDARD}|${PS}|g" \
               {} +
             # A policy manifest path may be a nested kustomization that renders a shared chart from
