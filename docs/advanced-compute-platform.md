@@ -356,3 +356,110 @@ No code changes needed — the existing policies and placements handle it automa
 | `pipelines: 'true'` | openshift-pipelines | Tekton pipelines |
 | `storage-nodes: '<count>'` | storage-nodes | Dedicated storage MachineSets |
 | `local-storage: 'true'` | local-storage | Local storage operator |
+
+## Hub-of-Hubs Deployment
+
+The two-standard model works with hub-of-hubs without any changes. Each AutoShift instance is independent — it has its own Helm values, its own `policyStandard`/`policyStandardHub`, and its own ACM scope. The "hub vs. managed" distinction is always relative to the instance deploying it.
+
+### Tier Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│ Tier 0: Hub of Hubs                                                  │
+│                                                                      │
+│  AutoShift app: "autoshift"                                         │
+│  policyStandardHub: "Advanced Compute Platform Hub"                 │
+│    → ACM, GitOps, cluster-install on HoH itself                    │
+│                                                                      │
+│  policyStandard: "Advanced Compute Platform"                        │
+│    → ODF, logging, virt, etc. targeting hub1, hub2                  │
+│    (spoke hubs are "managed clusters" from HoH's perspective)       │
+│                                                                      │
+│  HoH ACM sees: local-cluster (HoH), hub1, hub2                     │
+└───────────────────┬───────────────────────────┬──────────────────────┘
+                    │                           │
+  ┌─────────────────▼──────────────┐  ┌─────────▼────────────────────┐
+  │ Tier 1: Spoke Hub (hub1)       │  │ Tier 1: Spoke Hub (hub2)     │
+  │                                │  │                              │
+  │  AutoShift app: "hub1"         │  │  AutoShift app: "hub2"       │
+  │  policyStandardHub: "..."      │  │  policyStandardHub: "..."    │
+  │    → dormant (hub1 has no      │  │    → dormant                 │
+  │      local-cluster in its ACM) │  │                              │
+  │                                │  │  policyStandard: "..."       │
+  │  policyStandard: "..."         │  │    → policies for spoke3,    │
+  │    → policies for spoke1,      │  │      spoke4                  │
+  │      spoke2                    │  └──────────────────────────────┘
+  │                                │
+  │  hub1 ACM sees: spoke1, spoke2 │
+  └──────────┬──────────┬──────────┘
+             │          │
+        ┌────▼───┐ ┌────▼───┐
+        │spoke1  │ │spoke2  │   Tier 2: Managed clusters
+        └────────┘ └────────┘
+```
+
+### Why No Third Standard Is Needed
+
+A spoke hub (hub1) plays two roles, but they are served by two different AutoShift instances that never overlap:
+
+| Role of hub1 | Managed by | AutoShift instance | Standard used |
+|---|---|---|---|
+| Receiving operators (as a managed cluster) | HoH's ACM | HoH AutoShift | HoH's `policyStandard` |
+| Deploying policies to its own spokes | hub1's own ACM | hub1 AutoShift | hub1's `policyStandard` |
+
+No single AutoShift instance ever needs to distinguish "spoke hub targets" from "leaf cluster targets" — the HoH instance targets spoke hubs, and hub1's instance targets leaf spokes. They never mix.
+
+### Dormant Hub Policies on Spoke Hubs
+
+Hub1's AutoShift generates Applications for all policy directories (including ACM, GitOps, etc.) because the ApplicationSet discovers them from git. But the hub-targeting policies use Placements that look for clusters with labels like `acm: 'true'` among hub1's managed clusters. Hub1's ACM only sees spoke1 and spoke2, not itself — so if the spokes don't carry those labels, the hub policies are harmless no-ops. They exist in ArgoCD but match no clusters in ACM.
+
+### Per-Tier Configuration
+
+Each tier sets its standards independently via its own values files:
+
+```yaml
+# HoH values
+autoshift:
+  policyStandard: "Advanced Compute Platform"
+  policyStandardHub: "Advanced Compute Platform Hub"
+
+# hub1 values — can match HoH or use regional names
+autoshift:
+  policyStandard: "Region East Platform"
+  policyStandardHub: "Region East Platform Hub"
+
+# hub2 values
+autoshift:
+  policyStandard: "Region West Platform"
+  policyStandardHub: "Region West Platform Hub"
+```
+
+### Global Hub Visibility
+
+If Multicluster Global Hub is deployed on the HoH, it syncs policy status and metadata (including standard annotations) from all tiers via Kafka. The HoH Global Hub dashboard shows policies from every tier grouped by their standard annotations — no extra configuration needed.
+
+```
+  Multicluster Global Hub Dashboard (HoH)
+  ┌─────────────────────────────────────────────────────────┐
+  │                                                         │
+  │  Policies by Standard:                                  │
+  │  ┌───────────────────────────────────────────────────┐  │
+  │  │ Advanced Compute Platform Hub  │  12 policies     │  │
+  │  │   (HoH self-management)        │                  │  │
+  │  ├────────────────────────────────┼──────────────────┤  │
+  │  │ Advanced Compute Platform      │  34 policies     │  │
+  │  │   (HoH → hub1, hub2)          │                  │  │
+  │  ├────────────────────────────────┼──────────────────┤  │
+  │  │ Region East Platform           │  28 policies     │  │
+  │  │   (hub1 → spoke1, spoke2)     │                  │  │
+  │  ├────────────────────────────────┼──────────────────┤  │
+  │  │ Region West Platform           │  28 policies     │  │
+  │  │   (hub2 → spoke3, spoke4)     │                  │  │
+  │  └───────────────────────────────┴──────────────────┘  │
+  │                                                         │
+  │  Standards propagate as Policy annotations — synced     │
+  │  automatically via Kafka, no PolicySets needed.         │
+  └─────────────────────────────────────────────────────────┘
+```
+
+This cross-tier visibility is an advantage of standards over PolicySets — PolicySets are per-hub objects with no cross-hub aggregation.
