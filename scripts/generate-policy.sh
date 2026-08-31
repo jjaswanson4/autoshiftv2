@@ -82,6 +82,7 @@ pg_render() {
             -e 's/\${EVAL_COMPLIANT}/2h/g' \
             -e 's/\${EVAL_NONCOMPLIANT}/45s/g' \
             -e 's/\${CLUSTER_SET_SUFFIX}//g' \
+            -e 's/\${POLICY_STANDARD}/NIST SP 800-53/g' \
             "$f" > "$f.sub" && mv "$f.sub" "$f"
     done < <(find "$tmp" -name '*.yaml')
 
