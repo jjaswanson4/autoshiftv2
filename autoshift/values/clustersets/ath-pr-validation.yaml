@@ -1,0 +1,177 @@
+# PR Validation — exercises PRs 7a (htpasswd), 7b (remove-kubeadmin), 8 (cert-manager ACME)
+# Includes all ath-hyperconverged services plus auth and cert-manager ACME features.
+managedClusterSets:
+  ath-pr-validation:
+    config:
+      # ── GitOps ──────────────────────────────────────────────────────
+      gitops:
+        defaultInstance: true
+      # ── ODF StorageCluster (PR 3) ──────────────────────────────────
+      odf:
+        storageCluster:
+          enableCephTools: true
+          resourceProfile: Lean
+          monDataDirHostPath: /var/lib/rook
+          multiCloudGateway:
+            reconcileStrategy: ignore
+          storageDeviceSets:
+            - name: nvme-set
+              deviceClass: nvme
+              count: 1
+              replica: 3
+              placement: {}
+              dataPVCTemplate:
+                spec:
+                  storageClassName: local-nvme
+                  accessModes:
+                    - ReadWriteOnce
+                  volumeMode: Block
+                  resources:
+                    requests:
+                      storage: 1
+              resources:
+                limits:
+                  cpu: "2"
+                  memory: 4Gi
+                requests:
+                  cpu: "1"
+                  memory: 2Gi
+      # ── Local Storage (PR 3) ───────────────────────────────────────
+      localStorage:
+        localVolumeDiscovery:
+          nodeSelector:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: cluster.ocs.openshift.io/openshift-storage
+                    operator: Exists
+          tolerations:
+            - effect: NoSchedule
+              key: node.ocs.openshift.io/storage
+              operator: Exists
+        localVolumeSets:
+          nvme:
+            storageClassName: local-nvme
+            volumeMode: Block
+            deviceInclusionSpec:
+              deviceTypes:
+                - disk
+              deviceMechanicalProperties:
+                - NonRotational
+            nodeSelector:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: cluster.ocs.openshift.io/openshift-storage
+                      operator: Exists
+            tolerations:
+              - effect: NoSchedule
+                key: node.ocs.openshift.io/storage
+                operator: Exists
+      # ── AAP (PR 5) ─────────────────────────────────────────────────
+      aap:
+        instance:
+          controller:
+            disabled: false
+          hub:
+            disabled: true
+          eda:
+            disabled: false
+          lightspeed:
+            disabled: true
+          redis_mode: standalone
+          database:
+            postgres_storage_class: ocs-storagecluster-ceph-rbd
+      # ── htpasswd identity provider (PR 7a) ─────────────────────────
+      htpasswd:
+        providers:
+          - name: Test Admins
+            secretName: test-admins-htpass
+            htpasswd: |
+              testuser:$apr1$vlAvuQxg$uLfFMyQySvSHc919h5BGT1
+        clusterAdmins:
+          - testuser
+      # ── cert-manager ACME ClusterIssuer (PR 8) ─────────────────────
+      certManager:
+        acmeIssuer:
+          issuer:
+            name: letsencrypt-staging
+            spec:
+              acme:
+                server: https://acme-staging-v02.api.letsencrypt.org/directory
+                email: test@example.com
+                privateKeySecretRef:
+                  name: letsencrypt-staging-key
+                solvers:
+                  - http01:
+                      ingress:
+                        class: openshift-default
+    labels:
+      openshift-version: '4.22.6'
+      ### GitOps
+      gitops: 'true'
+      gitops-subscription-name: openshift-gitops-operator
+      gitops-channel: ''
+      gitops-source: redhat-operators
+      gitops-source-namespace: openshift-marketplace
+      ### ODF
+      odf: 'true'
+      odf-subscription-name: odf-operator
+      odf-multi-cloud-gateway: standard
+      odf-resource-profile: lean
+      odf-channel: stable-4.22
+      odf-source: redhat-operators
+      odf-source-namespace: openshift-marketplace
+      ### Storage nodes
+      storage-nodes-provider: baremetal
+      storage-nodes: '3'
+      ### Local Storage
+      local-storage: 'true'
+      local-storage-subscription-name: local-storage-operator
+      local-storage-channel: stable
+      local-storage-source: redhat-operators
+      local-storage-source-namespace: openshift-marketplace
+      ### NMState
+      nmstate: 'true'
+      nmstate-subscription-name: kubernetes-nmstate-operator
+      nmstate-channel: stable
+      nmstate-source: redhat-operators
+      nmstate-source-namespace: openshift-marketplace
+      ### Virtualization
+      virt: 'true'
+      virt-subscription-name: kubevirt-hyperconverged
+      virt-channel: stable
+      virt-source: redhat-operators
+      virt-source-namespace: openshift-marketplace
+      ### AAP
+      aap: 'true'
+      aap-subscription-name: ansible-automation-platform-operator
+      aap-channel: stable-2.7
+      aap-install-plan-approval: Automatic
+      aap-source: redhat-operators
+      aap-source-namespace: openshift-marketplace
+      ### Cert Manager
+      cert-manager: 'true'
+      cert-manager-subscription-name: openshift-cert-manager-operator
+      cert-manager-channel: stable-v1
+      cert-manager-source: redhat-operators
+      cert-manager-source-namespace: openshift-marketplace
+      cert-manager-ca: 'false'
+      cert-manager-acme-issuer: 'true'
+      ### htpasswd + remove-kubeadmin (PR 7a, 7b)
+      htpasswd: 'true'
+      remove-kubeadmin: 'true'
+      ### Workload Partitioning
+      workload-partitioning: 'true'
+      ### ACS
+      acs: 'true'
+      acs-subscription-name: rhacs-operator
+      acs-version: 'rhacs-operator.v4.11.2'
+      acs-channel: stable
+      acs-source: redhat-operators
+      acs-source-namespace: openshift-marketplace
+      acs-monitoring: 'true'
+      ### Pipelines
+      pipelines: 'true'
+      pipelines-subscription-name: openshift-pipelines-operator-rh
+      pipelines-channel: pipelines-1.21
+      pipelines-source: redhat-operators
+      pipelines-source-namespace: openshift-marketplace
