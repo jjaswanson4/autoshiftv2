@@ -346,6 +346,8 @@ hubClusterSets:
         isolatedCpus: '4-31'
         nodeSelector:
           node-role.kubernetes.io/worker: ''
+        machineConfigPoolSelector:
+          pools.operator.machineconfiguration.openshift.io/worker: ''
         numaTopology: 'restricted'
         hugepages:
           defaultHugepagesSize: '1G'
