@@ -1,0 +1,7 @@
+apiVersion: triliovault.trilio.io/v1
+kind: TrilioVaultManager
+metadata:
+  name: triliovault-manager
+  namespace: trilio-system
+status:
+  status: Installed

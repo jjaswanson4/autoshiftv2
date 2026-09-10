@@ -1,0 +1,48 @@
+object-templates-raw: |
+  {{hub- $cfg := index (index (fromConfigMap .PolicyMetadata.namespace (print .ManagedClusterName ".rendered-config") "config" | default "" | fromYaml) "trilio" | default dict) hub}}
+  {{hub- range $target := (dig "targets" (list) $cfg) hub}}
+  {{hub- if eq ($target.type | default "ObjectStore") "ObjectStore" hub}}
+  - complianceType: musthave
+    objectDefinition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: {{hub $target.name hub}}-credentials
+        namespace: trilio-system
+      type: Opaque
+      data:
+        accessKey: {{hub fromSecret ($target.credentialSecret).namespace ($target.credentialSecret).name "accessKey" hub}}
+        secretKey: {{hub fromSecret ($target.credentialSecret).namespace ($target.credentialSecret).name "secretKey" hub}}
+  - complianceType: musthave
+    objectDefinition:
+      apiVersion: triliovault.trilio.io/v1
+      kind: Target
+      metadata:
+        name: {{hub $target.name hub}}
+        namespace: trilio-system
+      spec:
+        type: ObjectStore
+        vendor: {{hub $target.vendor | default "Other" hub}}
+        objectStoreCredentials:
+          url: '{{hub $target.url hub}}'
+          bucketName: '{{hub $target.bucketName hub}}'
+          region: '{{hub $target.region | default "us-east-1" hub}}'
+          credentialSecret:
+            name: {{hub $target.name hub}}-credentials
+            namespace: trilio-system
+        thresholdCapacity: {{hub $target.thresholdCapacity | default "1000Gi" hub}}
+  {{hub- else if eq $target.type "NFS" hub}}
+  - complianceType: musthave
+    objectDefinition:
+      apiVersion: triliovault.trilio.io/v1
+      kind: Target
+      metadata:
+        name: {{hub $target.name hub}}
+        namespace: trilio-system
+      spec:
+        type: NFS
+        nfsCredentials:
+          nfsExport: '{{hub $target.nfsExport hub}}'
+          nfsOptions: '{{hub $target.nfsOptions | default "nolock,nfsvers=4.1" hub}}'
+  {{hub- end hub}}
+  {{hub- end hub}}

@@ -418,6 +418,28 @@ hubClusterSets:
             authMethod: "password"
             sanType: "nvme"
       # =======================================================================
+      # Trilio (Workload Data Protection)
+      # Backup targets — each entry creates a Target CR + credential Secret.
+      # S3 targets require a Secret (accessKey/secretKey) pre-staged on the
+      # hub in the namespace/name given by credentialSecret.
+      # =======================================================================
+      trilio:
+        targets:
+          - name: "s3-backup-target"
+            type: "ObjectStore"
+            vendor: "Other"
+            url: "https://s3.example.com"
+            bucketName: "acp-backups"
+            region: "us-east-1"
+            thresholdCapacity: "1000Gi"
+            credentialSecret:
+              name: "trilio-s3-credentials"
+              namespace: "trilio-secrets"
+          # - name: "nfs-backup-target"
+          #   type: "NFS"
+          #   nfsExport: "nfs-server.example.com:/exports/backups"
+          #   nfsOptions: "nolock,nfsvers=4.1"
+      # =======================================================================
       # Developer OpenShift GitOps (team ArgoCD instances)
       # Per-team ArgoCD spec (RBAC + resource sizing). Which teams deploy, and
       # in which mode, is driven by the cluster labels gitops-dev /
@@ -1169,3 +1191,12 @@ hubClusterSets:
       trident-source-namespace: openshift-marketplace
       trident-channel: stable
       trident-version: 'trident-operator.v25.06.0'   # optional CSV version pin
+
+      # =======================================================================
+      # Trilio
+      # =======================================================================
+      trilio: 'false'
+      trilio-subscription-name: k8s-triliovault
+      trilio-channel: lts-4.0
+      trilio-source: certified-operators
+      trilio-source-namespace: openshift-marketplace

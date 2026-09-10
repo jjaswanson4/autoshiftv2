@@ -1,0 +1,15 @@
+apiVersion: triliovault.trilio.io/v1
+kind: TrilioVaultManager
+metadata:
+  name: triliovault-manager
+  namespace: trilio-system
+  labels:
+    triliovault.trilio.io/instance: triliovault-manager
+spec:
+  trilioVaultAppVersion: 4.0.0
+  applicationScope: Cluster
+  ingressConfig:
+    ingressClass: openshift-default
+  componentConfiguration:
+    ingress-controller:
+      enabled: true
