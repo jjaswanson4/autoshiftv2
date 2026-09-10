@@ -17,6 +17,8 @@ trilio/
                                 #   OperatorPolicy); per-operator ACM lookups are visible here
     triliovault-manager.yaml    # TrilioVaultManager CR (Cluster scope, ingress enabled)
     target.yaml                 # Config-driven Target CRs (S3/NFS) via rendered-config
+    policy.yaml                 # Config-driven Protection Policies (schedule + retention)
+    clusterbackupplan.yaml      # Config-driven ClusterBackupPlans (label-based workload selection)
   test/
     triliovault-manager-ready.yaml  # inform-only: Compliant when manager status is Installed
 ```

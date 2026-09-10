@@ -1,0 +1,18 @@
+object-templates-raw: |
+  {{hub- $cfg := index (index (fromConfigMap .PolicyMetadata.namespace (print .ManagedClusterName ".rendered-config") "config" | default "" | fromYaml) "trilio" | default dict) hub}}
+  {{hub- range $pol := (dig "policies" (list) $cfg) hub}}
+  - complianceType: musthave
+    objectDefinition:
+      apiVersion: triliovault.trilio.io/v1
+      kind: Policy
+      metadata:
+        name: {{hub $pol.name hub}}
+        namespace: trilio-system
+      spec:
+        type: Schedule
+        scheduleConfig:
+          schedule:
+            - '{{hub $pol.schedule hub}}'
+        cleanupConfig:
+          backupDays: {{hub $pol.backupDays hub}}
+  {{hub- end hub}}

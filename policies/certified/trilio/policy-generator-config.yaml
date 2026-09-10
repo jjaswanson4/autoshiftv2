@@ -49,6 +49,17 @@ policies:
       - name: policy-deploy-trilio
     manifests:
       - path: manifests/target.yaml
+  - name: policy-trilio-protection-policy
+    dependencies:
+      - name: policy-deploy-trilio
+    manifests:
+      - path: manifests/policy.yaml
+  - name: policy-trilio-cluster-backup-plan
+    dependencies:
+      - name: policy-trilio-target
+      - name: policy-trilio-protection-policy
+    manifests:
+      - path: manifests/clusterbackupplan.yaml
   - name: policy-trilio-manager-ready
     remediationAction: inform
     dependencies:

@@ -1,0 +1,28 @@
+object-templates-raw: |
+  {{hub- $cfg := index (index (fromConfigMap .PolicyMetadata.namespace (print .ManagedClusterName ".rendered-config") "config" | default "" | fromYaml) "trilio" | default dict) hub}}
+  {{hub- range $plan := (dig "clusterBackupPlans" (list) $cfg) hub}}
+  - complianceType: musthave
+    objectDefinition:
+      apiVersion: triliovault.trilio.io/v1
+      kind: ClusterBackupPlan
+      metadata:
+        name: {{hub $plan.name hub}}
+      spec:
+        backupConfig:
+          target:
+            name: {{hub $plan.target hub}}
+            namespace: trilio-system
+          schedulePolicy:
+            fullBackupPolicy:
+              name: {{hub $plan.policy hub}}
+              namespace: trilio-system
+          backupPlanComponent:
+            customSelector:
+              labelSelector:
+                - matchLabels:
+                    {{hub- range $k, $v := $plan.labelSelector }}
+                    {{hub $k hub}}: '{{hub $v hub}}'
+                    {{hub- end }}
+          backupPlanFlags:
+            skipImageBackup: {{hub $plan.skipImageBackup | default false hub}}
+  {{hub- end hub}}

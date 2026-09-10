@@ -424,6 +424,8 @@ hubClusterSets:
       # hub in the namespace/name given by credentialSecret.
       # =======================================================================
       trilio:
+        # Backup Targets — each entry creates a Target CR (+ credential Secret for S3).
+        # S3 targets require a Secret with accessKey/secretKey pre-staged on the hub.
         targets:
           - name: "s3-backup-target"
             type: "ObjectStore"
@@ -439,6 +441,26 @@ hubClusterSets:
           #   type: "NFS"
           #   nfsExport: "nfs-server.example.com:/exports/backups"
           #   nfsOptions: "nolock,nfsvers=4.1"
+        # Protection Policies — schedule + retention. Each entry creates a Policy CR.
+        # Schedule uses standard cron syntax. backupDays controls retention.
+        policies:
+          - name: "daily-7day-retention"
+            schedule: "0 2 * * *"
+            backupDays: 7
+          - name: "weekly-30day-retention"
+            schedule: "0 3 * * 0"
+            backupDays: 30
+        # Cluster Backup Plans — each entry creates a ClusterBackupPlan CR.
+        # Requires applicationScope: Cluster in the TrilioVaultManager.
+        # Selects workloads by label across all namespaces.
+        # clusterBackupPlans:
+        #   - name: "production-vms-backup"
+        #     target: "s3-backup-target"
+        #     policy: "weekly-30day-retention"
+        #     labelSelector:
+        #       workload-type: "virtual-machine"
+        #       environment: "production"
+        #     skipImageBackup: false
       # =======================================================================
       # Developer OpenShift GitOps (team ArgoCD instances)
       # Per-team ArgoCD spec (RBAC + resource sizing). Which teams deploy, and
