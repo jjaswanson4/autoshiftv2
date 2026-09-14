@@ -1,5 +1,8 @@
 object-templates-raw: |
-  {{hub- $devicePaths := (index .ManagedClusterLabels "autoshift.io/lvm-device-paths" | default "") hub}}
+  {{hub $cm := (lookup "v1" "ConfigMap" .PolicyMetadata.namespace (printf "%s.rendered-config" .ManagedClusterName)) hub}}
+  {{hub- $config := (index ($cm.data | default dict) "config" | default "" | fromYaml) hub}}
+  {{hub- $lvm := (index $config "lvm" | default dict) hub}}
+  {{hub- $devicePaths := (index $lvm "devicePaths" | default list) hub}}
   - complianceType: musthave
     objectDefinition:
       apiVersion: lvm.topolvm.io/v1alpha1
@@ -13,11 +16,11 @@ object-templates-raw: |
             - default: '{{hub index .ManagedClusterLabels "autoshift.io/lvm-default" | default "true" | toBool hub}}'
               fstype: '{{hub index .ManagedClusterLabels "autoshift.io/lvm-fstype" | default "xfs" hub}}'
               name: vg1
-  {{hub- if not (empty $devicePaths) hub}}
+  {{hub- if (gt (len $devicePaths) 0) hub}}
               deviceSelector:
                 paths:
-  {{hub- range $path := (splitList "," $devicePaths) hub}}
-                  - {{hub $path | trim hub}}
+  {{hub- range $path := $devicePaths hub}}
+                  - {{hub $path hub}}
   {{hub- end hub}}
   {{hub- end hub}}
               thinPoolConfig:
