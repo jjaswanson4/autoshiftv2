@@ -12,6 +12,14 @@ spec:
       - default: '{{hub index .ManagedClusterLabels "autoshift.io/lvm-default" | default "true" | toBool hub}}'
         fstype: '{{hub index .ManagedClusterLabels "autoshift.io/lvm-fstype" | default "xfs" hub}}'
         name: vg1
+{{hub- $devicePaths := (index .ManagedClusterLabels "autoshift.io/lvm-device-paths" | default "") hub}}
+{{hub- if not (empty $devicePaths) hub}}
+        deviceSelector:
+          paths:
+{{hub- range $path := (splitList "," $devicePaths) hub}}
+            - {{hub $path | trim hub}}
+{{hub- end hub}}
+{{hub- end hub}}
         thinPoolConfig:
           chunkSizeCalculationPolicy: Static
           metadataSizeCalculationPolicy: Host
