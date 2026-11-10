@@ -590,6 +590,7 @@ hubClusterSets:
       acm-provisioning-database-size: 10Gi           # Min 10GiB recommended
       acm-provisioning-filesystem-storage-size: 100Gi # Min 100GiB recommended
       acm-provisioning-image-storage-size: 50Gi      # 2GiB per OSImage entry
+      # acm-provisioning-ip: ''                      # FREE machine-network IP for Ironic (adds IP SAN to its TLS cert; needed for HTTPS virtual media)
       # ACM Addon Tuning (for scale)
       acm-addon-tuning: 'true'
       # config-policy-controller tuning (annotations on ManagedClusterAddOn)

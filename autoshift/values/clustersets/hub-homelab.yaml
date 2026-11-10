@@ -32,6 +32,8 @@ hubClusterSets:
       # Agent-based provisioning (AgentServiceConfig) for cluster-install deployments
       acm-enable-provisioning: 'true'
       acm-provisioning-storage-class: lvms-vg1
+      # Free IP for Ironic; gives its TLS cert an IP SAN so the BMCs accept virtual-media ISO URLs
+      acm-provisioning-ip: '192.168.4.56'
       # acm-provisioning-database-size: 10Gi
       # acm-provisioning-filesystem-storage-size: 100Gi
       # acm-provisioning-image-storage-size: 50Gi

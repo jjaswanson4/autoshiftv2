@@ -162,6 +162,7 @@ oc get packagemanifests openshift-pipelines-operator-rh -o yaml | grep currentCS
 | `self-managed`              | bool      | `true` or `false`         |       |
 | `acm-enable-provisioning`   | bool      | `false`                   | Configures ACM to provision clusters |
 | `acm-provisioning-storage-class` | string |                         | (optional) name of StorageClass to use if non default is desired |
+| `acm-provisioning-ip` | string |                                    | (optional) Sets `provisioningIP` on the metal3 `Provisioning` CR. Must be a free address in the machine network (metal3 adds and removes it on the node interface, so never use a node IP). Ironic only puts an IP SAN in its TLS cert when this is set, so BMCs that verify certificates need it to fetch virtual-media ISOs over HTTPS. |
 | `acm-provisioning-database-size` | string | `10Gi`                  | DatabaseStorage defines the spec of the PersistentVolumeClaim to be
 created for the database's filesystem. Minimum 10GiB is recommended. |
 | `acm-provisioning-filesystem-storage-size` | string | `100Gi`       | FileSystemStorage defines the spec of the PersistentVolumeClaim to be
