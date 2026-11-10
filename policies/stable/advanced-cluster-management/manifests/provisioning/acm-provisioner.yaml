@@ -12,6 +12,7 @@ object-templates-raw: |
   {{hub- if $provIP hub}}
         # Ironic's TLS cert only gets an IP SAN when provisioningIP is set. BMCs fetch virtual-media
         # ISOs from https://<ip>:6183, so without it they reject the cert and the ISO never mounts.
-        # Must be a FREE address in the machine network: metal3 adds/removes it on the node interface.
+        # With provisioningNetwork Disabled, metal3 does NOT add this IP to any interface: it must be
+        # an address the node already has (on SNO, the node IP).
         provisioningIP: '{{hub $provIP hub}}'
   {{hub- end hub}}
