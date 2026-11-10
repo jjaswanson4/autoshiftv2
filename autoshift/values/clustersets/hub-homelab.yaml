@@ -1,0 +1,53 @@
+# Homelab single-node hub: ACM (with Agent-based provisioning), GitOps, ACS Central,
+# and LVMS for persistent storage. Pair with clustersets/non-ha-acps.yaml for spokes.
+#
+#   helm upgrade --install autoshift autoshift -n openshift-gitops \
+#     -f autoshift/values/global.yaml \
+#     -f autoshift/values/clustersets/hub-homelab.yaml \
+#     -f autoshift/values/clustersets/non-ha-acps.yaml
+
+autoshift:
+  policyStandard: "Advanced Compute Platform"
+  policyStandardHub: "Advanced Compute Platform Hub"
+
+hubClusterSets:
+  hub:
+    labels:
+      openshift-version: '4.22.18'
+      self-managed: 'true'
+      ### OpenShift GitOps
+      gitops: 'true'
+      gitops-subscription-name: openshift-gitops-operator
+      gitops-disable-default-argocd: 'true'
+      gitops-channel: gitops-1.21
+      gitops-source: redhat-operators
+      gitops-source-namespace: openshift-marketplace
+      ### Advanced Cluster Management
+      acm-subscription-name: advanced-cluster-management
+      acm-channel: release-2.17
+      acm-source: redhat-operators
+      acm-source-namespace: openshift-marketplace
+      acm-availability-config: 'Basic'       # single node
+      acm-observability: 'false'
+      # Agent-based provisioning (AgentServiceConfig) for cluster-install deployments
+      acm-enable-provisioning: 'true'
+      acm-provisioning-storage-class: lvms-vg1
+      # acm-provisioning-database-size: 10Gi
+      # acm-provisioning-filesystem-storage-size: 100Gi
+      # acm-provisioning-image-storage-size: 50Gi
+      ### Advanced Cluster Security (Central on the hub; spokes register back)
+      acs: 'true'
+      acs-subscription-name: rhacs-operator
+      acs-channel: stable
+      acs-source: redhat-operators
+      acs-source-namespace: openshift-marketplace
+      ### LVM Storage — auto-discovers all unused disks on the node
+      lvm: 'true'
+      lvm-subscription-name: lvms-operator
+      lvm-channel: stable-4.22
+      lvm-source: redhat-operators
+      lvm-source-namespace: openshift-marketplace
+      lvm-default: 'true'
+      lvm-fstype: xfs
+      lvm-size-percent: '90'
+      lvm-overprovision-ratio: '10'
