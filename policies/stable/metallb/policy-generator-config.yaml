@@ -65,10 +65,13 @@ policies:
     manifests:
       - path: manifests/ippools-configmaps.yaml
         complianceType: mustonlyhave
-  # 5) IPAddressPool fan-out per metallb-ippool-<n> label. Waits on its ConfigMaps.
+  # 5) IPAddressPool fan-out per metallb-ippool-<n> label. Waits on the CR on the same cluster.
+  #    Not on policy-ippools-configmaps: that one is placed on hubs only, and ACM checks a
+  #    dependency on the same cluster, so a spoke would stay Pending forever. The hub-template
+  #    lookup of the ConfigMap is re-resolved when the ConfigMap appears.
   - name: policy-metallb-ippool-config
     dependencies:
-      - name: policy-ippools-configmaps
+      - name: policy-deploy-metallb
     manifests:
       - path: manifests/ippool-config.yaml
   # 6) L2Advertisement lookup ConfigMaps (hub-side). Waits on the ippool config.
@@ -81,10 +84,11 @@ policies:
       - name: policy-metallb-ippool-config
     manifests:
       - path: manifests/l2-configmaps.yaml
-  # 7) L2Advertisement fan-out per metallb-l2-<n> label. Waits on its ConfigMaps.
+  # 7) L2Advertisement fan-out per metallb-l2-<n> label. Waits on the pools it advertises
+  #    (same-cluster dependency; see 5).
   - name: policy-metallb-l2-config
     dependencies:
-      - name: policy-l2-configmaps
+      - name: policy-metallb-ippool-config
     manifests:
       - path: manifests/l2-config.yaml
   # 8) BGPAdvertisement lookup ConfigMaps (hub-side). Waits on the CR.
@@ -97,10 +101,10 @@ policies:
       - name: policy-deploy-metallb
     manifests:
       - path: manifests/bgp-configmaps.yaml
-  # 9) BGPAdvertisement fan-out per metallb-bgp-<n> label. Waits on its ConfigMaps.
+  # 9) BGPAdvertisement fan-out per metallb-bgp-<n> label. Waits on the CR (see 5).
   - name: policy-metallb-bgp-config
     dependencies:
-      - name: policy-bgp-configmaps
+      - name: policy-deploy-metallb
     manifests:
       - path: manifests/bgp-config.yaml
   # 10) BGPPeer lookup ConfigMaps (hub-side). Waits on the CR.
@@ -113,9 +117,9 @@ policies:
       - name: policy-deploy-metallb
     manifests:
       - path: manifests/peer-configmaps.yaml
-  # 11) BGPPeer fan-out per metallb-peer-<n> label. Waits on its ConfigMaps.
+  # 11) BGPPeer fan-out per metallb-peer-<n> label. Waits on the CR (see 5).
   - name: policy-metallb-peer-config
     dependencies:
-      - name: policy-peer-configmaps
+      - name: policy-deploy-metallb
     manifests:
       - path: manifests/peer-config.yaml
