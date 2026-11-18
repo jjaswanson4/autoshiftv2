@@ -5,3 +5,30 @@ metadata:
   namespace: '{{hub $.PolicyMetadata.namespace hub}}'
 data:
   adv: IyBUaGlzIGlzIGFuIGV4YW1wbGUgSVBQb29sIGFkdmVydGlzZW1lbnQgY29uZmlndXJhdGlvbiBhbmQgZG9lcyBub3QgZ2V0IGFwcGxpZWQgdG8gdGhlIGNsdXN0ZXIKIyBBZGQgdGhlIG5hbWUgb2YgdGhpcyBmaWxlIHRvIHRoZSBtZXRhbGxiLWlwcG9vbCB2YWx1ZSB0byBhcHBseSB0aGlzIGNvbmZpZ3VyYXRpb24KIyBJZiB5b3UgbmFtZSB0aGlzIGZpbGUgImludGVybmFsLnlhbWwiLCB5b3VyIHZhbHVlIHNob3VsZCBiZSBtZXRhbGxiLWlwcG9vbC0qOiAnaW50ZXJuYWwnCmtpbmQ6IElQQWRkcmVzc1Bvb2wKYXBpVmVyc2lvbjogbWV0YWxsYi5pby92MWJldGExCm1ldGFkYXRhOgogIG5hbWU6IGludGVybmFsLWNpc2NvCiAgbmFtZXNwYWNlOiBtZXRhbGxiLXN5c3RlbQpzcGVjOgogICMgYXV0b0Fzc2lnbjogZmFsc2UgIFRvIHByZXZlbnQgSVBzIGZyb20gYmVpbmcgaGFuZGVkIG91dCBpZiBhbm90aGVyIHBvb2wgaXMgZXhoYXVzdGVkIGFuZCB0aGlzIGlzIHVzZWQgYXMgYmFja3VwCiAgYWRkcmVzc2VzOgogICAgLSAxOTIuMTY4LjEwMC4xLTE5Mi4xNjguMTAwLjIwCg==
+---
+# margo-acm: acp0's LoadBalancer addresses (192.168.107.210-192.168.107.214, no DHCP on 192.168.107.0/24). Select with metallb-ippool-N: margo-acp0.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ippool-margo-acp0
+  namespace: '{{hub $.PolicyMetadata.namespace hub}}'
+data:
+  adv: YXBpVmVyc2lvbjogbWV0YWxsYi5pby92MWJldGExCmtpbmQ6IElQQWRkcmVzc1Bvb2wKbWV0YWRhdGE6CiAgbmFtZTogbWFyZ28KICBuYW1lc3BhY2U6IG1ldGFsbGItc3lzdGVtCnNwZWM6CiAgYWRkcmVzc2VzOgogICAgLSAxOTIuMTY4LjEwNy4yMTAtMTkyLjE2OC4xMDcuMjE0Cg==
+---
+# margo-acm: acp1's LoadBalancer addresses (192.168.107.215-192.168.107.219, no DHCP on 192.168.107.0/24). Select with metallb-ippool-N: margo-acp1.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ippool-margo-acp1
+  namespace: '{{hub $.PolicyMetadata.namespace hub}}'
+data:
+  adv: YXBpVmVyc2lvbjogbWV0YWxsYi5pby92MWJldGExCmtpbmQ6IElQQWRkcmVzc1Bvb2wKbWV0YWRhdGE6CiAgbmFtZTogbWFyZ28KICBuYW1lc3BhY2U6IG1ldGFsbGItc3lzdGVtCnNwZWM6CiAgYWRkcmVzc2VzOgogICAgLSAxOTIuMTY4LjEwNy4yMTUtMTkyLjE2OC4xMDcuMjE5Cg==
+---
+# margo-acm: acp2's LoadBalancer addresses (192.168.107.220-192.168.107.224, no DHCP on 192.168.107.0/24). Select with metallb-ippool-N: margo-acp2.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ippool-margo-acp2
+  namespace: '{{hub $.PolicyMetadata.namespace hub}}'
+data:
+  adv: YXBpVmVyc2lvbjogbWV0YWxsYi5pby92MWJldGExCmtpbmQ6IElQQWRkcmVzc1Bvb2wKbWV0YWRhdGE6CiAgbmFtZTogbWFyZ28KICBuYW1lc3BhY2U6IG1ldGFsbGItc3lzdGVtCnNwZWM6CiAgYWRkcmVzc2VzOgogICAgLSAxOTIuMTY4LjEwNy4yMjAtMTkyLjE2OC4xMDcuMjI0Cg==
