@@ -308,6 +308,8 @@ Single Node OpenShift clusters as well as Compact Clusters have to rely on their
 |-----------------------------------|-------------------|---------------------------|-------|
 | `master-nodes`                    | bool              | `false`                   |       |
 | `master-max-pods`                 | int               | `250`                     | The number of maximum pods per node. Up to 2500 supported dependent on hardware |
+| `master-shutdown-grace-period`    | string            | unset (off)               | Kubelet graceful node shutdown (`shutdownGracePeriod`), e.g. `10m`: on a shutdown or reboot the kubelet stops pods gracefully first (OpenShift Virtualization VMs get a clean guest shutdown) instead of the node cutting them off, and they restart on boot. Setting or changing it rolls a MachineConfig, which reboots the nodes |
+| `master-shutdown-grace-period-critical-pods` | string | `0s`                      | The part of `master-shutdown-grace-period` reserved for critical pods, stopped last, e.g. `3m`. Used only with `master-shutdown-grace-period` |
 
 ### Workload Partitioning
 

@@ -13,6 +13,9 @@ object-templates-raw: |
   {{- $kubeReservedMemory := "{{hub index .ManagedClusterLabels "autoshift.io/master-kube-reserved-memory" | default "1536Mi" hub}}" }}
   {{- $kubeReservedCpu := "{{hub index .ManagedClusterLabels "autoshift.io/master-kube-reserved-cpu" | default "500m" hub}}" }}
   {{- $evictionMemory := "{{hub index .ManagedClusterLabels "autoshift.io/master-eviction-memory" | default "500Mi" hub}}" }}
+  {{- /* Graceful node shutdown: off unless set (setting it rolls a MachineConfig, so a reboot). */}}
+  {{- $shutdownGrace := "{{hub index .ManagedClusterLabels "autoshift.io/master-shutdown-grace-period" | default "" hub}}" }}
+  {{- $shutdownGraceCritical := "{{hub index .ManagedClusterLabels "autoshift.io/master-shutdown-grace-period-critical-pods" | default "" hub}}" }}
   - complianceType: musthave
     objectDefinition:
       apiVersion: machineconfiguration.openshift.io/v1
@@ -34,3 +37,7 @@ object-templates-raw: |
             cpu: {{ $kubeReservedCpu }}
           evictionHard:
             memory.available: {{ $evictionMemory }}
+          {{- if $shutdownGrace }}
+          shutdownGracePeriod: {{ $shutdownGrace }}
+          shutdownGracePeriodCriticalPods: {{ $shutdownGraceCritical | default "0s" }}
+          {{- end }}
